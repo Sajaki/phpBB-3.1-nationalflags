@@ -16,10 +16,13 @@ class nationalflags_module
 
 	function main($id, $mode)
 	{
-		global $phpbb_container, $request, $user;
+		global $phpbb_container, $request;
 
 		// Get an instance of the admin controller
 		$admin_controller = $phpbb_container->get('rmcgirr83.nationalflags.admin.controller');
+
+		/** @var \phpbb\language\language $lang */
+		$lang = $phpbb_container->get('language');
 
 		// Requests
 		$action = $request->variable('action', '');
@@ -39,7 +42,7 @@ class nationalflags_module
 				$this->tpl_name = 'nationalflags_settings';
 
 				// Set the page title for our ACP page
-				$this->page_title = $user->lang('ACP_FLAG_SETTINGS');
+				$this->page_title = $lang->lang('ACP_FLAG_SETTINGS');
 
 				// Load the display options handle in the admin controller
 				$admin_controller->display_options();
@@ -50,14 +53,14 @@ class nationalflags_module
 				$this->tpl_name = 'nationalflags_manage';
 
 				// Set the page title for our ACP page
-				$this->page_title = $user->lang('ACP_FLAGS');
+				$this->page_title = $lang->lang('ACP_FLAGS');
 
 				// Perform any actions submitted by the user
 				switch ($action)
 				{
 					case 'add':
 						// Set the page title for our ACP page
-						$this->page_title = $user->lang('FLAG_ADD');
+						$this->page_title = $lang->lang('FLAG_ADD');
 
 						// Load the add flag handle in the admin controller
 						$admin_controller->add_flag();
@@ -68,7 +71,7 @@ class nationalflags_module
 
 					case 'edit':
 						// Set the page title for our ACP page
-						$this->page_title = $user->lang('FLAG_EDIT');
+						$this->page_title = $lang->lang('FLAG_EDIT');
 
 						// Load the edit flag handle in the admin controller
 						$admin_controller->edit_flag($flag_id);

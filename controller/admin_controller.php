@@ -46,6 +46,9 @@ class admin_controller
 	/** @var \phpbb\user */
 	protected $user;
 
+	/** @var \phpbb\language\language */
+	protected $lang;
+
 	/** @var \phpbb\log\log */
 	protected $log;
 
@@ -85,6 +88,7 @@ class admin_controller
 	* @param \phpbb\request\request					$request			Request object
 	* @param \phpbb\template\template				$template			Template object
 	* @param \phpbb\user							$user				User object
+	* @param \phpbb\language\language				$lang				Language object
 	* @param \phpbb\log								$log				Log object
 	* @param \phpbb\extension\manager				$ext_manager		Extension manager object
 	* @param \phpbb\path_helper						$path_helper		Path helper object
@@ -104,6 +108,7 @@ class admin_controller
 			\phpbb\request\request $request,
 			\phpbb\template\template $template,
 			\phpbb\user $user,
+			\phpbb\language\language $lang,
 			\phpbb\log\log $log,
 			\phpbb\extension\manager $ext_manager,
 			\phpbb\path_helper $path_helper,
@@ -120,6 +125,7 @@ class admin_controller
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
+		$this->lang = $lang;
 		$this->log = $log;
 		$this->ext_manager	 = $ext_manager;
 		$this->path_helper	 = $path_helper;
@@ -149,7 +155,7 @@ class admin_controller
 			// Test if the submitted form is valid
 			if (!check_form_key('nationalflags_settings'))
 			{
-				trigger_error($this->user->lang['FORM_INVALID'] . adm_back_link($this->u_action));
+				trigger_error($this->lang->lang('FORM_INVALID') . adm_back_link($this->u_action));
 			}
 
 			if (!function_exists('validate_data'))
@@ -160,8 +166,6 @@ class admin_controller
 			$check_row = array('flags_num_display' => $this->request->variable('flags_num_display', 0));
 			$validate_row = array('flags_num_display' => array('num', false, 1, 1000));
 			$error = validate_data($check_row, $validate_row);
-			// Replace "error" strings with their real, localised form
-			$error = array_map(array($this->user, 'lang'), $error);
 
 			if (!sizeof($error))
 			{
@@ -173,7 +177,7 @@ class admin_controller
 
 				// Option settings have been updated and logged
 				// Confirm this to the user and provide link back to previous page
-				trigger_error($this->user->lang('FLAG_SETTINGS_CHANGED') . adm_back_link($this->u_action));
+				trigger_error($this->lang->lang('FLAG_SETTINGS_CHANGED') . adm_back_link($this->u_action));
 			}
 		}
 
@@ -221,7 +225,7 @@ class admin_controller
 		$start = $this->request->variable('start', 0);
 		$pagination_url = $this->u_action;
 
-		$this->user->add_lang_ext('rmcgirr83/nationalflags', 'common');
+		$this->lang->add_lang('common', 'rmcgirr83/nationalflags');
 
 		$sql = 'SELECT f.*, COUNT(u.user_flag) as user_count
 			FROM ' . $this->flags_table . ' f
@@ -240,7 +244,7 @@ class admin_controller
 
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$user_count = $this->user->lang('FLAG_USERS', (int) $row['user_count']);
+			$user_count = $this->lang->lang('FLAG_USERS', (int) $row['user_count']);
 
 			$this->template->assign_block_vars('flags', array(
 				'FLAG_NAME'		=> $row['flag_name'],
@@ -274,7 +278,7 @@ class admin_controller
 		// Add form key
 		add_form_key('add_flag');
 
-		$this->user->add_lang('posting');
+		$this->lang->add_lang('posting');
 		$errors = array();
 
 		$flag_row = array(
@@ -322,12 +326,12 @@ class admin_controller
 				// cache this data for ever, can only change in ACP
 				$this->functions->cache_flags();
 
-				trigger_error($this->user->lang['MSG_FLAG_ADDED'] . adm_back_link($this->u_action));
+				trigger_error($this->lang->lang('MSG_FLAG_ADDED') . adm_back_link($this->u_action));
 			}
 		}
 
 		$this->template->assign_vars(array(
-			'L_TITLE'		=> $this->user->lang['FLAG_ADD'],
+			'L_TITLE'		=> $this->lang->lang('FLAG_ADD'),
 			'U_ACTION'		=> $this->u_action . '&amp;action=add',
 			'U_BACK'		=> $this->u_action,
 			'FLAG_NAME'		=> $flag_row['flag_name'],
@@ -401,7 +405,7 @@ class admin_controller
 				$this->cache->destroy('_user_flags');
 				$this->functions->cache_flags();
 
-				trigger_error($this->user->lang['MSG_FLAG_EDITED'] . adm_back_link($this->u_action));
+				trigger_error($this->lang->lang('MSG_FLAG_EDITED') . adm_back_link($this->u_action));
 			}
 		}
 
@@ -414,11 +418,11 @@ class admin_controller
 
 		if (!$flag_row)
 		{
-			trigger_error($this->user->lang['FLAG_ERROR_NOT_EXIST'] . adm_back_link($this->u_action . '&amp;mode=manage'), E_USER_WARNING);
+			trigger_error($this->lang->lang('FLAG_ERROR_NOT_EXIST') . adm_back_link($this->u_action . '&amp;mode=manage'), E_USER_WARNING);
 		}
 		$found_flag = $this->ext_path_web . 'flags/' . $row['flag_image'];
 		$this->template->assign_vars(array(
-			'L_TITLE'		=> $this->user->lang['FLAG_EDIT'],
+			'L_TITLE'		=> $this->lang->lang('FLAG_EDIT'),
 			'U_ACTION'		=> $this->u_action . "&amp;flag_id=$flag_id&amp;action=edit",
 			'U_BACK'		=> $this->u_action . '&amp;mode=manage',
 			'ERROR_MSG'		=> (sizeof($errors)) ? implode('<br />', $errors) : '',
@@ -474,7 +478,7 @@ class admin_controller
 			$this->cache->destroy('_user_flags');
 			$this->functions->cache_flags();
 
-			trigger_error($this->user->lang['MSG_FLAGS_DELETED'] . adm_back_link($this->u_action . "&amp;mode=manage"));
+			trigger_error($this->lang->lang['MSG_FLAGS_DELETED'] . adm_back_link($this->u_action . "&amp;mode=manage"));
 		}
 		else
 		{
@@ -486,7 +490,7 @@ class admin_controller
 			$row = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
 
-			$message = $this->user->lang['MSG_CONFIRM'];
+			$message = $this->lang->lang('MSG_CONFIRM');
 			if (!empty($row['flag_count']))
 			{
 				$message .= $this->user->lang('MSG_FLAG_CONFIRM_DELETE', (int) $row['flag_count']);
@@ -516,19 +520,19 @@ class admin_controller
 	{
 		if (!check_form_key($form_key))
 		{
-			$errors[] = $this->user->lang['FORM_INVALID'];
+			$errors[] = $this->lang->lang('FORM_INVALID');
 		}
 
 		if (empty($flag_name))
 		{
-			$errors[] = $this->user->lang['FLAG_ERROR_NO_FLAG_NAME'];
+			$errors[] = $this->lang->lang('FLAG_ERROR_NO_FLAG_NAME');
 		}
 
 		if (!$this->can_upload_flag())
 		{
 			if (empty($flag_image))
 			{
-				$errors[] = $this->user->lang['FLAG_ERROR_NO_FLAG_IMG'];
+				$errors[] = $this->lang->lang('FLAG_ERROR_NO_FLAG_IMG');
 			}
 		}
 
@@ -540,7 +544,7 @@ class admin_controller
 
 		if ($this->db->sql_fetchrow($result))
 		{
-			$errors[] = $this->user->lang['FLAG_NAME_EXISTS'];
+			$errors[] = $this->lang->lang('FLAG_NAME_EXISTS');
 		}
 		$this->db->sql_freeresult($result);
 

@@ -41,6 +41,9 @@ class listener implements EventSubscriberInterface
 	/** @var \phpbb\user */
 	protected $user;
 
+	/** @var \phpbb\language\language */
+	protected $lang;
+
 	/** @var \phpbb\extension\manager "Extension Manager" */
 	protected $ext_manager;
 
@@ -56,16 +59,17 @@ class listener implements EventSubscriberInterface
 	/**
 	* Constructor
 	*
-	* @param \phpbb\auth\auth					$auth			Auth object
-	* @param \phpbb\config\config               $config         Config object
-	* @param \phpbb\controller\helper           $helper         Controller helper object
-	* @param \phpbb\db\driver\driver			$db				Database object
-	* @param \phpbb\request\request				$request		Request object
-	* @param \phpbb\template\template           $template       Template object
-	* @param \phpbb\user                        $user           User object
+	* @param \phpbb\auth\auth					$auth				Auth object
+	* @param \phpbb\config\config               $config         	Config object
+	* @param \phpbb\controller\helper           $helper         	Controller helper object
+	* @param \phpbb\db\driver\driver			$db					Database object
+	* @param \phpbb\request\request				$request			Request object
+	* @param \phpbb\template\template           $template       	Template object
+	* @param \phpbb\user                        $user           	User object
+	* @param \phpbb\language\language			$lang				Language object
 	* @param \phpbb\extension\manager			$ext_manager		Extension manager object
-	* @param string                             $phpbb_root_path      phpBB root path
-	* @param string                             $php_ext        phpEx
+	* @param string                             $phpbb_root_path	phpBB root path
+	* @param string                             $php_ext			phpEx
 	* @param \rmcgirr83\nationalflags\core\nationalflags	$functions	functions to be used by class
 	* @access public
 	*/
@@ -77,6 +81,7 @@ class listener implements EventSubscriberInterface
 			\phpbb\request\request $request,
 			\phpbb\template\template $template,
 			\phpbb\user $user,
+			\phpbb\language\language $lang,
 			\phpbb\extension\manager $ext_manager,
 			$phpbb_root_path,
 			$php_ext,
@@ -89,6 +94,7 @@ class listener implements EventSubscriberInterface
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
+		$this->lang = $lang;
 		$this->ext_manager	 = $ext_manager;
 		$this->root_path = $phpbb_root_path;
 		$this->php_ext = $php_ext;
@@ -195,7 +201,7 @@ class listener implements EventSubscriberInterface
 		{
 			$this->template->assign_vars(array(
 				'S_FLAG_MESSAGE'	=> (empty($this->user->data['user_flag'])) ? true : false,
-				'L_FLAG_PROFILE'	=> $this->user->lang('USER_NEEDS_FLAG', '<a href="' . append_sid("{$this->root_path}ucp.$this->php_ext", 'i=profile') . '">', '</a>'),
+				'L_FLAG_PROFILE'	=> $this->lang->lang('USER_NEEDS_FLAG', '<a href="' . append_sid("{$this->root_path}ucp.$this->php_ext", 'i=profile') . '">', '</a>'),
 			));
 		}
 	}
@@ -239,7 +245,7 @@ class listener implements EventSubscriberInterface
 		if ($event['submit'] && empty($event['data']['user_flag']) && $this->config['flags_required'])
 		{
 			$array = $event['error'];
-			$array[] = $this->user->lang['MUST_CHOOSE_FLAG'];
+			$array[] = $this->lang->lang('MUST_CHOOSE_FLAG');
 			$event['error'] = $array;
 		}
 	}
@@ -316,7 +322,7 @@ class listener implements EventSubscriberInterface
 		{
 			if (strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/flags') === 0)
 			{
-				$event['location'] = $this->user->lang('FLAGS_VIEWONLINE');
+				$event['location'] = $this->lang->lang('FLAGS_VIEWONLINE');
 				$event['location_url'] = $this->helper->route('rmcgirr83_nationalflags_display');
 			}
 		}
