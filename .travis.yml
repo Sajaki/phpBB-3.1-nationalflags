@@ -1,5 +1,5 @@
 # Opt into fully virtualized infrastructure
-sudo: required
+sudo: false
 
 language: php
 
@@ -44,10 +44,6 @@ branches:
     - develop
     - /^develop-.*$/
     - /^release-.*$/
-
-before_install:
-    - phpenv config-rm xdebug.ini
-    - sudo apt-get update -qq
 
 install:
   - travis_retry composer install --dev --no-interaction --prefer-source
