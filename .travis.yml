@@ -46,7 +46,8 @@ branches:
     - /^release-.*$/
 
 before_install:
-    - sudo apt-get update
+    - sudo apt-get update -qq
+    - sudo apt-get install parallel
 
 install:
   - travis_retry composer install --dev --no-interaction --prefer-source
