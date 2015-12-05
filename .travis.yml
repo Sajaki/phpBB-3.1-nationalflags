@@ -45,6 +45,9 @@ branches:
     - /^develop-.*$/
     - /^release-.*$/
 
+before_install:
+    - sudo apt-get update
+
 install:
   - travis_retry composer install --dev --no-interaction --prefer-source
   - travis/prepare-phpbb.sh $EXTNAME $PHPBB_BRANCH
