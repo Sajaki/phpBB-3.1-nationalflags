@@ -41,9 +41,6 @@ class listener implements EventSubscriberInterface
 	/** @var \phpbb\user */
 	protected $user;
 
-	/** @var \phpbb\language\language */
-	protected $lang;
-
 	/** @var \phpbb\extension\manager "Extension Manager" */
 	protected $ext_manager;
 
@@ -59,17 +56,16 @@ class listener implements EventSubscriberInterface
 	/**
 	* Constructor
 	*
-	* @param \phpbb\auth\auth					$auth				Auth object
-	* @param \phpbb\config\config               $config         	Config object
-	* @param \phpbb\controller\helper           $helper         	Controller helper object
-	* @param \phpbb\db\driver\driver			$db					Database object
-	* @param \phpbb\request\request				$request			Request object
-	* @param \phpbb\template\template           $template       	Template object
-	* @param \phpbb\user                        $user           	User object
-	* @param \phpbb\language\language			$lang				Language object
+	* @param \phpbb\auth\auth					$auth			Auth object
+	* @param \phpbb\config\config               $config         Config object
+	* @param \phpbb\controller\helper           $helper         Controller helper object
+	* @param \phpbb\db\driver\driver			$db				Database object
+	* @param \phpbb\request\request				$request		Request object
+	* @param \phpbb\template\template           $template       Template object
+	* @param \phpbb\user                        $user           User object
 	* @param \phpbb\extension\manager			$ext_manager		Extension manager object
-	* @param string                             $phpbb_root_path	phpBB root path
-	* @param string                             $php_ext			phpEx
+	* @param string                             $phpbb_root_path      phpBB root path
+	* @param string                             $php_ext        phpEx
 	* @param \rmcgirr83\nationalflags\core\nationalflags	$functions	functions to be used by class
 	* @access public
 	*/
@@ -81,7 +77,6 @@ class listener implements EventSubscriberInterface
 			\phpbb\request\request $request,
 			\phpbb\template\template $template,
 			\phpbb\user $user,
-			\phpbb\language\language $lang,
 			\phpbb\extension\manager $ext_manager,
 			$phpbb_root_path,
 			$php_ext,
@@ -94,7 +89,6 @@ class listener implements EventSubscriberInterface
 		$this->request = $request;
 		$this->template = $template;
 		$this->user = $user;
-		$this->lang = $lang;
 		$this->ext_manager	 = $ext_manager;
 		$this->root_path = $phpbb_root_path;
 		$this->php_ext = $php_ext;
@@ -146,10 +140,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_setup($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
 		// Need to ensure the flags are cached on page load
 		$this->functions->cache_flags();
 		$lang_set_ext = $event['lang_set_ext'];
@@ -169,7 +159,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function index_modify_page_title($event)
 	{
-		if (!$this->functions->is_allowed() || !$this->config['flags_display_index'])
+		if (!$this->config['flags_display_index'])
 		{
 			return;
 		}
@@ -197,11 +187,11 @@ class listener implements EventSubscriberInterface
 		{
 			return;
 		}
-		if ($this->config['flags_display_msg'] && $this->functions->is_allowed())
+		if ($this->config['flags_display_msg'])
 		{
 			$this->template->assign_vars(array(
 				'S_FLAG_MESSAGE'	=> (empty($this->user->data['user_flag'])) ? true : false,
-				'L_FLAG_PROFILE'	=> $this->lang->lang('USER_NEEDS_FLAG', '<a href="' . append_sid("{$this->root_path}ucp.$this->php_ext", 'i=profile') . '">', '</a>'),
+				'L_FLAG_PROFILE'	=> $this->user->lang('USER_NEEDS_FLAG', '<a href="' . append_sid("{$this->root_path}ucp.$this->php_ext", 'i=profile') . '">', '</a>'),
 			));
 		}
 	}
@@ -237,7 +227,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_flag_profile_validate($event)
 	{
-		if (!$this->functions->is_allowed() || empty($this->config['flags_required']))
+		if (empty($this->config['flags_required']))
 		{
 			return;
 		}
@@ -245,7 +235,7 @@ class listener implements EventSubscriberInterface
 		if ($event['submit'] && empty($event['data']['user_flag']) && $this->config['flags_required'])
 		{
 			$array = $event['error'];
-			$array[] = $this->lang->lang('MUST_CHOOSE_FLAG');
+			$array[] = $this->user->lang['MUST_CHOOSE_FLAG'];
 			$event['error'] = $array;
 		}
 	}
@@ -277,11 +267,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_flag_registration_sql($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		$event['user_row'] = array_merge($event['user_row'], array(
 				'user_flag' => $this->request->variable('user_flag', 0),
 		));
@@ -296,11 +281,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function acp_user_flag_profile($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		// Request the user option vars and add them to the data array
 		$event['data'] = array_merge($event['data'], array(
 			'user_flag'	=> $this->request->variable('user_flag', $event['user_row']['user_flag']),
@@ -322,7 +302,7 @@ class listener implements EventSubscriberInterface
 		{
 			if (strrpos($event['row']['session_page'], 'app.' . $this->php_ext . '/flags') === 0)
 			{
-				$event['location'] = $this->lang->lang('FLAGS_VIEWONLINE');
+				$event['location'] = $this->user->lang('FLAGS_VIEWONLINE');
 				$event['location_url'] = $this->helper->route('rmcgirr83_nationalflags_display');
 			}
 		}
@@ -355,11 +335,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function viewtopic_cache_user_data($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		$array = $event['user_cache_data'];
 		$array['user_flag'] = $event['row']['user_flag'];
 		$event['user_cache_data'] = $array;
@@ -374,11 +349,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function viewtopic_cache_guest_data($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		$array = $event['user_cache_data'];
 		$array['user_flag'] = 0;
 		$event['user_cache_data'] = $array;
@@ -393,11 +363,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function viewtopic_modify_post_row($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		// If setting in ACP is set to not allow guests and bots to view the flags
 		if (!$this->config['flags_display_to_guests'] && ($this->user->data['is_bot'] || $this->user->data['user_id'] == ANONYMOUS))
 		{
@@ -422,11 +387,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function memberlist_view_profile($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		if (!empty($event['member']['user_flag']))
 		{
 			$flag = $this->functions->get_user_flag($event['member']['user_flag']);
@@ -449,11 +409,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function search_get_posts_data($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		$array = $event['sql_array'];
 		$array['SELECT'] .= ', u.user_flag';
 		$event['sql_array'] = $array;
@@ -468,7 +423,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function search_modify_tpl_ary($event)
 	{
-		if (!$this->functions->is_allowed() || $event['show_results'] == 'topics')
+		if ($event['show_results'] == 'topics')
 		{
 			return;
 		}
@@ -495,7 +450,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function search_modify_search_title($event)
 	{
-		if (!$this->functions->is_allowed() || $event['show_results'] == 'topics')
+		if ($event['show_results'] == 'topics')
 		{
 			return;
 		}
@@ -514,11 +469,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function ucp_pm_view_messsage($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		if (!empty($event['user_info']['user_flag']))
 		{
 			$flag = $this->functions->get_user_flag($event['user_info']['user_flag']);

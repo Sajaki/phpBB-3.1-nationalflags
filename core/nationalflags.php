@@ -32,11 +32,8 @@ class nationalflags
 	/** @var \phpbb\user */
 	protected $user;
 
-	/** @var \phpbb\language\language */
-	protected $lang;
-
 	/**
-	 * The database table the rules are stored in
+	 * The database table the flags are stored in
 	 *
 	 * @var string
 	 */
@@ -57,7 +54,6 @@ class nationalflags
 	 * @param \phpbb\db\driver\driver		$db					Database object
 	 * @param \phpbb\template\template		$template			Template object
 	 * @param \phpbb\user					$user				User object
-	 * @param \phpbb\language\language		$lang				Language object
 	 * @param string						$flags_table		Name of the table used to store flag data
 	 * @param \phpbb\extension\manager		$ext_manager		Extension manager object
 	 * @param \phpbb\path_helper			$path_helper		Path helper object
@@ -69,7 +65,6 @@ class nationalflags
 			\phpbb\db\driver\driver_interface $db,
 			\phpbb\template\template $template,
 			\phpbb\user $user,
-			\phpbb\language\language $lang,
 			$flags_table,
 			\phpbb\extension\manager $ext_manager,
 			\phpbb\path_helper $path_helper)
@@ -80,7 +75,6 @@ class nationalflags
 		$this->db = $db;
 		$this->template = $template;
 		$this->user = $user;
-		$this->lang = $lang;
 		$this->flags_table = $flags_table;
 		$this->ext_manager	 = $ext_manager;
 		$this->path_helper	 = $path_helper;
@@ -154,7 +148,7 @@ class nationalflags
 		ORDER BY flag_name';
 		$result = $this->db->sql_query($sql);
 
-		$flag_options = '<option value="0">' . $this->lang->lang('FLAG_EXPLAIN') . '</option>';
+		$flag_options = '<option value="0">' . $this->user->lang['FLAG_EXPLAIN'] . '</option>';
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$selected = ($row['flag_id'] == $flag_id) ? ' selected="selected"' : '';
@@ -197,7 +191,7 @@ class nationalflags
 			++$count;
 			$this->template->assign_block_vars('flag', array(
 				'FLAG' 			=> $this->get_user_flag($row['user_flag']),
-				'FLAG_USERS'	=> $this->lang->lang('FLAG_USERS', (int) $row['fnum']),
+				'FLAG_USERS'	=> $this->user->lang('FLAG_USERS', (int) $row['fnum']),
 				'U_FLAG'		=> $this->helper->route('rmcgirr83_nationalflags_getflags', array('flag_id' => $flags[$row['user_flag']]['flag_id'])),
 			));
 		}
@@ -225,11 +219,11 @@ class nationalflags
 		{
 			if ($this->config['flags_required'])
 			{
-				return new Response($this->lang->lang('MUST_CHOOSE_FLAG'));
+				return new Response($this->user->lang['MUST_CHOOSE_FLAG']);
 			}
 			else
 			{
-				return new Response($this->lang->lang('NO_SUCH_FLAG'));
+				return new Response($this->user->lang['NO_SUCH_FLAG']);
 			}
 		}
 
@@ -254,16 +248,5 @@ class nationalflags
 	public function get_flag_cache()
 	{
 		return $this->cache->get('_user_flags');
-	}
-
-	/**
-	* Is allowed
-	*
-	* @return true or false
-	* @access public
-	*/
-	public function is_allowed()
-	{
-		return $this->config['allow_flags'];
 	}
 }

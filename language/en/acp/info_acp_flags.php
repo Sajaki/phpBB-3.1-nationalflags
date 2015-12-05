@@ -39,7 +39,7 @@ $lang = array_merge($lang, array(
 	'ACP_FLAGS'							=> 'National Flags',
 	'ACP_FLAGS_EXPLAIN'					=> 'Here you can add/edit and delete the different flags.',
 	'ACP_NO_UPLOAD'						=> '<br /><strong>If you want to use images you should upload them to ext/rmcgirr83/nationalflags/flags before you add the new Flag.  The flag must have a lower case name, ie uk.gif</strong>',
-	'ACP_FLAGS_DONATE'					=> 'Please consider a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S4UTZ9YNKEDDN" onclick="window.open(this.href); return false;"><strong>Donation</strong></a> if you like the Extension',
+	'ACP_FLAGS_DONATE'					=> 'Please consider a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S4UTZ9YNKEDDN&item_name=National%20Flags" onclick="window.open(this.href); return false;"><strong>Donation</strong></a> if you like the Extension',
 	'ACP_FLAG_USERS'					=> 'Number of Users',
 
 	//Add/Edit Flags
@@ -58,8 +58,6 @@ $lang = array_merge($lang, array(
 
 	//Settings
 	'ACP_FLAG_SETTINGS'					=> 'National Flag Settings',
-	'YES_FLAGS'							=> 'Enable flags',
-	'YES_FLAGS_EXPLAIN'					=> 'Choose to disable or enable the flags',
 	'FLAGS_VERSION'						=> 'National Flags Version',
 	'FLAGS_REQUIRED'					=> 'Required field',
 	'FLAGS_REQUIRED_EXPLAIN'			=> 'Choosing Yes here will force new registrants as well as those that visit their user profile to choose a flag',
@@ -90,4 +88,5 @@ $lang = array_merge($lang, array(
 	'FLAG_CONFIG_SAVED'					=> '<strong>National flags settings changed</strong>',
 	'FLAG_NAME_EXISTS'					=> 'A flag with that name already exists',
 	'FLAG_SETTINGS_CHANGED'				=> 'National Flags settings changed.',
+	'FLAG_EXISTS_GENERAL_UPLOAD_ERROR'	=> 'Could not upload flag to %s. The flag image may already exist.',
 ));

@@ -47,9 +47,6 @@ class main_controller
 	/** @var \phpbb\user */
 	protected $user;
 
-	/** @var \phpbb\language\language */
-	protected $lang;
-
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -75,11 +72,10 @@ class main_controller
 	* @param \phpbb\pagination					$pagination		Pagination object
 	* @param \phpbb\controller\helper           $helper         Controller helper object
 	* @param \phpbb\request\request				$request		Request object
-	* @param \phpbb\extension\manager			$ext_manager	Extension manager object
+	* @param \phpbb\extension\manager			$ext_manager		Extension manager object
 	* @param \phpbb\path_helper					$path_helper	Path helper object
 	* @param \phpbb\template\template           $template       Template object
 	* @param \phpbb\user                        $user           User object
-	* @param \phpbb\language\language			$lang			Language object
 	* @param string                             $root_path      phpBB root path
 	* @param string                             $php_ext        phpEx
 	* @param string								$flags_table	Name of the table used to store flag data
@@ -97,7 +93,6 @@ class main_controller
 			\phpbb\path_helper $path_helper,
 			\phpbb\template\template $template,
 			\phpbb\user $user,
-			\phpbb\language\language $lang,
 			$root_path,
 			$php_ext,
 			$flags_table,
@@ -113,7 +108,6 @@ class main_controller
 		$this->path_helper	 = $path_helper;
 		$this->template = $template;
 		$this->user = $user;
-		$this->lang = $lang;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 		$this->flags_table = $flags_table;
@@ -129,12 +123,6 @@ class main_controller
 	 */
 	public function displayFlags()
 	{
-		// When flags are disabled, redirect users back to the forum index
-		if (!$this->functions->is_allowed())
-		{
-			redirect(append_sid("{$this->root_path}index.{$this->php_ext}"));
-		}
-
 		// If setting in ACP is set to not allow guests and bots to view the flags
 		if (!$this->config['flags_display_to_guests'] && ($this->user->data['is_bot'] || $this->user->data['user_id'] == ANONYMOUS))
 		{
@@ -158,7 +146,7 @@ class main_controller
 			$flag_id = $row['flag_id'];
 			$user_count = $row['user_count'];
 			$users_count = $users_count + $user_count;
-			$user_flag_count = $this->lang->lang('FLAG_USERS', (int) $user_count);
+			$user_flag_count = $this->user->lang('FLAG_USERS', (int) $user_count);
 
 			$flag_image = $this->functions->get_user_flag($row['flag_id']);
 
@@ -170,9 +158,9 @@ class main_controller
 		}
 		$this->db->sql_freeresult($result);
 
-		$flag_users = $this->lang->lang('FLAG_USERS', (int) $users_count);
+		$flag_users = $this->user->lang('FLAG_USERS', (int) $users_count);
 
-		$countries = $this->lang->lang('FLAGS', (int) $countries);
+		$countries = $this->user->lang('FLAGS', (int) $countries);
 
 		$this->template->assign_vars(array(
 			'L_FLAGS'	=> $countries . '&nbsp;&nbsp;' . $flag_users,
@@ -182,11 +170,11 @@ class main_controller
 		// Assign breadcrumb template vars for the flags page
 		$this->template->assign_block_vars('navlinks', array(
 			'U_VIEW_FORUM'		=> $this->helper->route('rmcgirr83_nationalflags_display'),
-			'FORUM_NAME'		=> $this->lang->lang('NATIONAL_FLAGS'),
+			'FORUM_NAME'		=> $this->user->lang('NATIONAL_FLAGS'),
 		));
 
 		// Send all data to the template file
-		return $this->helper->render('flags_list.html', $this->lang->lang('NATIONAL_FLAGS'));
+		return $this->helper->render('flags_list.html', $this->user->lang('NATIONAL_FLAGS'));
 	}
 
 	/**
@@ -198,12 +186,6 @@ class main_controller
 	 */
 	public function getFlags($flag_id, $page = 0)
 	{
-		// When flags are disabled, redirect users back to the forum index
-		if (!$this->functions->is_allowed())
-		{
-			redirect(append_sid("{$this->root_path}index.{$this->php_ext}"));
-		}
-
 		// If setting in ACP is set to not allow guests and bots to view the flags
 		if (!$this->config['flags_display_to_guests'] && ($this->user->data['is_bot'] || $this->user->data['user_id'] == ANONYMOUS))
 		{
@@ -222,7 +204,7 @@ class main_controller
 		$page_title = $flag_name;
 		if ($page > 1)
 		{
-			$page_title .= ' - ' . $this->lang->lang('PAGE_TITLE_NUMBER', $page);
+			$page_title .= ' - ' . $this->user->lang('PAGE_TITLE_NUMBER', $page);
 		}
 
 		$this->display_flag($flag_id, ($page - 1) * $this->config['posts_per_page'], $this->config['posts_per_page']);
@@ -255,7 +237,7 @@ class main_controller
 		// for counting of total flag users
 		$result = $this->db->sql_query($sql);
 		$row2 = $this->db->sql_fetchrowset($result);
-		$total_users = (int) count($row2);
+		$total_users = (int) sizeof($row2);
 		$this->db->sql_freeresult($result);
 		unset($row2);
 
@@ -288,7 +270,7 @@ class main_controller
 
 		$users_count = $total_users;
 
-		$total_users = $this->lang->lang('FLAG_USERS', (int) $total_users);
+		$total_users = $this->user->lang('FLAG_USERS', (int) $total_users);
 
 		$flags_array = $this->functions->get_flag_cache();
 
@@ -299,13 +281,13 @@ class main_controller
 			'S_VIEWONLINE'	=> $this->auth->acl_get('u_viewonline'),
 			'S_FLAGS'		=> true,
 			'S_FLAG_USERS'	=> (!empty($users_count)) ? true : false,
-			'MESSAGE_TEXT'	=> (empty($users_count)) ? $this->lang->lang('NO_USER_HAS_FLAG') : '',
+			'MESSAGE_TEXT'	=> (empty($users_count)) ? $this->user->lang['NO_USER_HAS_FLAG'] : '',
 		));
 
 		// Assign breadcrumb template vars for the flags page
 		$this->template->assign_block_vars('navlinks', array(
 			'U_VIEW_FORUM'		=> $this->helper->route('rmcgirr83_nationalflags_display'),
-			'FORUM_NAME'		=> $this->lang->lang('NATIONAL_FLAGS'),
+			'FORUM_NAME'		=> $this->user->lang('NATIONAL_FLAGS'),
 		));
 
 		// Assign breadcrumb template vars for the flags page
