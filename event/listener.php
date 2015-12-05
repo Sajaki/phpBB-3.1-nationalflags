@@ -176,7 +176,7 @@ class listener implements EventSubscriberInterface
 	 */
 	public function page_header_after($event)
 	{
-		if (!$this->auth->acl_get('u_chgprofileinfo') || !$this->functions->is_allowed())
+		if (!$this->auth->acl_get('u_chgprofileinfo'))
 		{
 			return;
 		}
@@ -205,11 +205,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_flag_profile($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		// Request the user option vars and add them to the data array
 		$event['data'] = array_merge($event['data'], array(
 			'user_flag'	=> $this->request->variable('user_flag', (int) $this->user->data['user_flag']),
@@ -249,10 +244,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_flag_profile_sql($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
 		$event['sql_ary'] = array_merge($event['sql_ary'], array(
 				'user_flag' => $event['data']['user_flag'],
 		));
@@ -317,11 +308,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function viewtopic_template_vars_before($event)
 	{
-		if (!$this->functions->is_allowed())
-		{
-			return;
-		}
-
 		$this->template->assign_vars(array(
 			'S_FLAGS'		=> true,
 		));
