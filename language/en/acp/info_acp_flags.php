@@ -38,7 +38,7 @@ $lang = array_merge($lang, array(
 	'ACP_CAT_FLAGS'						=> 'National Flags',
 	'ACP_FLAGS'							=> 'National Flags',
 	'ACP_FLAGS_EXPLAIN'					=> 'Here you can add/edit and delete the different flags.',
-	'ACP_NO_UPLOAD'						=> '<br /><strong>If you want to use images you should upload them to ext/rmcgirr83/nationalflags/flags before you add the new Flag.  The flag must have a lower case name, ie uk.gif</strong>',
+	'ACP_NO_UPLOAD'						=> '<br><strong>If you want to use images you should upload them to ext/rmcgirr83/nationalflags/flags before you add the new Flag.  The flag must have a lower case name, ie uk.gif</strong>',
 	'ACP_FLAGS_DONATE'					=> 'Please consider a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S4UTZ9YNKEDDN&item_name=National%20Flags" onclick="window.open(this.href); return false;"><strong>Donation</strong></a> if you like the Extension',
 	'ACP_FLAG_USERS'					=> 'Number of Users',
 
@@ -71,14 +71,14 @@ $lang = array_merge($lang, array(
 	'FLAGS_DISPLAY_TO_GUESTS_EXPLAIN'	=> 'Choosing Yes here will display the flags to guests and bots',
 
 	//Logs, messages and errors
-	'LOG_FLAGS_DELETED'					=> '<strong>Deleted flag</strong><br />» %1$s',
-	'LOG_FLAG_EDIT'						=> '<strong>Updated flag</strong><br />» %1$s',
-	'LOG_FLAG_ADD'						=> '<strong>Added new flag</strong><br />» %1$s',
+	'LOG_FLAGS_DELETED'					=> '<strong>Deleted flag</strong><br>» %1$s',
+	'LOG_FLAG_EDIT'						=> '<strong>Updated flag</strong><br>» %1$s',
+	'LOG_FLAG_ADD'						=> '<strong>Added new flag</strong><br>» %1$s',
 	'MSG_FLAGS_DELETED'					=> 'Flag has been deleted.',
 	'MSG_CONFIRM'						=> '<strong>Are you sure you want to delete this flag?</strong>',
 	'MSG_FLAG_CONFIRM_DELETE'			=> array(
-		1	=> '<br /><strong>%d</strong> user has this flag and will have to select a different flag if you choose to delete this one.',
-		2	=> '<br /><strong>%d</strong> users have this flag and will have to select a different flag if you choose to delete this one.',
+		1	=> '<br><strong>%d</strong> user has this flag and will have to select a different flag if you choose to delete this one.',
+		2	=> '<br><strong>%d</strong> users have this flag and will have to select a different flag if you choose to delete this one.',
 	),
 	'MSG_FLAG_EDITED'					=> 'Flag has been edited.',
 	'MSG_FLAG_ADDED'					=> 'New flag has been added.',
