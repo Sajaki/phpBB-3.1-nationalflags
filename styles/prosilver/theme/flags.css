@@ -1,7 +1,6 @@
 ul.flags {
     width:100%;
     text-align:center;
-    background-color: #eef5f9;
 	list-style-type: none;
 	padding-bottom: 6px;
 }
@@ -17,33 +16,6 @@ ul.flags li {
 ul.flags li.flagslist {
     text-align:center;
 	margin: 7px 2px 0;
-}
-
-.flags_bg {
-    background-color: #cadceb;
-    border: 1px solid #aaaaaa;
-    border-radius: 6px;
-    box-shadow: 1px 1px 1px #999;
-    color: #333333;
-    margin: 4px 0;
-    overflow: hidden;
-    padding: 4px 4px 2px;
-    text-align: left;
-}
-
-div.flag_div {
-    background-color: #e1ebf2;
-    border: 1px solid #aaaaaa;
-    border-radius: 6px;
-    box-shadow: 1px 1px 1px #999;
-    color: #222222;
-    margin: 4px 0;
-    overflow: hidden;
-    padding: 4px 4px 2px;
-}
-
-div.flags {
-   background-color: #eef5f9;
 }
 
 .flagusers {
