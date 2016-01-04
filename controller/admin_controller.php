@@ -242,8 +242,10 @@ class admin_controller
 		{
 			$user_count = $this->user->lang('FLAG_USERS', (int) $row['user_count']);
 
+			$flag_default = !empty($row['flag_default']) ? true : false;
 			$this->template->assign_block_vars('flags', array(
 				'FLAG_NAME'		=> $row['flag_name'],
+				'FLAG_DEFAULT'	=> $flag_default,
 				'FLAG_IMG'		=> $this->ext_path_web . 'flags/' . $row['flag_image'],
 				'FLAG_ID'		=> $row['flag_id'],
 				'USER_COUNT'	=> $user_count,
@@ -280,38 +282,51 @@ class admin_controller
 		$flag_row = array(
 			'flag_name'			=> ucfirst(utf8_normalize_nfc($this->request->variable('flag_name', '', true))),
 			'flag_image'		=> (!$this->can_upload_flag()) ? $this->request->variable('flag_image', '') : '',
+			'flag_default'		=> $this->request->variable('flag_default', 0),
 		);
 
 		if ($this->request->is_set_post('submit'))
 		{
 			$errors = $this->check_flag($flag_row['flag_name'], $errors, 'add_flag', $flag_row['flag_image']);
 
-			include_once($this->root_path . 'includes/functions_upload.' . $this->php_ext);
-
-			//Set upload directory
-			$upload_dir = $this->ext_path_web . 'flags';
-			$upload_dir = str_replace(array('../', '..\\', './', '.\\'), '', $upload_dir);
-
-			//Upload file
-			$upload = new \fileupload('FLAG_EXISTS_');
-			$upload->set_allowed_extensions(array('gif', 'png', 'jpeg', 'jpg'));
-			$upload->set_allowed_dimensions(false, false, self::MAX_WIDTH, self::MAX_HEIGHT);
-			$file = $upload->form_upload('flag_upload');
-			$file->move_file($upload_dir, false);
-
-			if (sizeof($file->error))
+			if (!empty($this->request->variable('flag_upload', '')))
 			{
-				$file->remove();
-				$file_error = $file->error;
-				$errors = array_merge($errors, $file_error);
+				include_once($this->root_path . 'includes/functions_upload.' . $this->php_ext);
+
+				//Set upload directory
+				$upload_dir = $this->ext_path_web . 'flags';
+				$upload_dir = str_replace(array('../', '..\\', './', '.\\'), '', $upload_dir);
+
+				//Upload file
+				$upload = new \fileupload('FLAG_EXISTS_');
+				$upload->set_allowed_extensions(array('gif', 'png', 'jpeg', 'jpg'));
+				$upload->set_allowed_dimensions(false, false, self::MAX_WIDTH, self::MAX_HEIGHT);
+				$file = $upload->form_upload('flag_upload');
+				$file->move_file($upload_dir, false);
+
+				if (sizeof($file->error))
+				{
+					$file->remove();
+					$file_error = $file->error;
+					$errors = array_merge($errors, $file_error);
+				}
 			}
 
 			if (!sizeof($errors))
 			{
-				$flag_row['flag_image'] = $file->uploadname;
+				if (!empty($this->request->variable('flag_upload', '')))
+				{
+					$flag_row['flag_image'] = $file->uploadname;
 
-				// phpbb_chmod doesn't work well here on some servers so be explicit
-				@chmod($this->ext_path_web . 'flags/' . $file->uploadname, 0644);
+					// phpbb_chmod doesn't work well here on some servers so be explicit
+					@chmod($this->ext_path_web . 'flags/' . $file->uploadname, 0644);
+				}
+				// if this flag is set to default, change all other flags to not be set as default
+				if ($flag_row['flag_default'])
+				{
+					$sql = 'UPDATE ' . $this->flags_table . ' SET flag_default = 0 WHERE flag_default = 1';
+					$this->db->sql_query($sql);
+				}
 
 				$sql = 'INSERT INTO ' . $this->flags_table . ' ' . $this->db->sql_build_array('INSERT', $flag_row);
 				$this->db->sql_query($sql);
@@ -351,6 +366,19 @@ class admin_controller
 	 */
 	public function edit_flag($flag_id)
 	{
+
+		$sql = 'SELECT *
+			FROM ' . $this->flags_table . '
+			WHERE flag_id =' . (int) $flag_id;
+		$result = $this->db->sql_query($sql);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+
+		if (!$row)
+		{
+			trigger_error($this->user->lang['FLAG_ERROR_NOT_EXIST'] . adm_back_link($this->u_action . '&amp;mode=manage'), E_USER_WARNING);
+		}
+
 		// Add form key
 		add_form_key('edit_flag');
 
@@ -358,38 +386,52 @@ class admin_controller
 
 		$flag_row = array(
 			'flag_name'			=> ucfirst(utf8_normalize_nfc($this->request->variable('flag_name', '', true))),
-			'flag_image'		=> (!$this->can_upload_flag()) ? $this->request->variable('flag_image', '') : '',
+			'flag_image'		=> (!$this->can_upload_flag()) ? $this->request->variable('flag_image', $row['flag_image']) : $row['flag_image'],
+			'flag_default'		=> $this->request->variable('flag_default', 0),
 		);
 
 		if ($this->request->is_set_post('submit'))
 		{
 			$errors = $this->check_flag($flag_row['flag_name'], $errors, 'edit_flag', $flag_row['flag_image']);
-			include_once($this->root_path . 'includes/functions_upload.' . $this->php_ext);
-
-			//Set upload directory
-			$upload_dir = $this->ext_path_web . 'flags';
-			$upload_dir = str_replace(array('../', '..\\', './', '.\\'), '', $upload_dir);
-
-			//Upload file
-			$upload = new \fileupload();
-			$upload->set_allowed_extensions(array('gif', 'png', 'jpeg', 'jpg'));
-			$upload->set_allowed_dimensions(false, false, self::MAX_WIDTH, self::MAX_HEIGHT);
-			$file = $upload->form_upload('flag_upload');
-			$file->move_file($upload_dir, true);
-
-			if (sizeof($file->error))
+			if (!empty($this->request->variable('flag_upload', '')))
 			{
-				$file->remove();
-				$file_error = $file->error;
-				$errors = array_merge($errors, $file_error);
+				include_once($this->root_path . 'includes/functions_upload.' . $this->php_ext);
+
+				//Set upload directory
+				$upload_dir = $this->ext_path_web . 'flags';
+				$upload_dir = str_replace(array('../', '..\\', './', '.\\'), '', $upload_dir);
+
+				//Upload file
+				$upload = new \fileupload();
+				$upload->set_allowed_extensions(array('gif', 'png', 'jpeg', 'jpg'));
+				$upload->set_allowed_dimensions(false, false, self::MAX_WIDTH, self::MAX_HEIGHT);
+				$file = $upload->form_upload('flag_upload');
+				$file->move_file($upload_dir, true);
+
+				if (sizeof($file->error))
+				{
+					$file->remove();
+					$file_error = $file->error;
+					$errors = array_merge($errors, $file_error);
+				}
 			}
 
 			if (!sizeof($errors))
 			{
-				$flag_row['flag_image'] = $file->uploadname;
+				if (!empty($this->request->variable('flag_upload', '')))
+				{
+					$flag_row['flag_image'] = $file->uploadname;
 
-				// phpbb_chmod doesn't work well here on some servers so be explicit
-				@chmod($this->ext_path_web . 'flags/' . $file->uploadname, 0644);
+					// phpbb_chmod doesn't work well here on some servers so be explicit
+					@chmod($this->ext_path_web . 'flags/' . $file->uploadname, 0644);
+				}
+
+				// if this flag is set to default, change all other flags to not be set as default
+				if ($flag_row['flag_default'])
+				{
+					$sql = 'UPDATE ' . $this->flags_table . ' SET flag_default = 0 WHERE flag_default = 1';
+					$this->db->sql_query($sql);
+				}
 
 				$sql = 'UPDATE ' . $this->flags_table . '
 					SET ' . $this->db->sql_build_array('UPDATE', $flag_row) . '
@@ -405,17 +447,6 @@ class admin_controller
 			}
 		}
 
-		$sql = 'SELECT flag_id, flag_name, flag_image
-			FROM ' . $this->flags_table . '
-			WHERE flag_id =' . (int) $flag_id;
-		$result = $this->db->sql_query($sql);
-		$row = $this->db->sql_fetchrow($result);
-		$this->db->sql_freeresult($result);
-
-		if (!$row)
-		{
-			trigger_error($this->user->lang['FLAG_ERROR_NOT_EXIST'] . adm_back_link($this->u_action . '&amp;mode=manage'), E_USER_WARNING);
-		}
 		$found_flag = $this->ext_path_web . 'flags/' . $row['flag_image'];
 		$this->template->assign_vars(array(
 			'L_TITLE'		=> $this->user->lang['FLAG_EDIT'],
@@ -426,6 +457,7 @@ class admin_controller
 			'FLAG_NAME'		=> $row['flag_name'],
 			'FLAG_IMAGE'	=> $row['flag_image'],
 			'FLAG_ID'		=> $row['flag_id'],
+			'FLAG_DEFAULT'	=> $row['flag_default'],
 			'FOUND_FLAG'	=> (!empty($found_flag)) ? $found_flag : '',
 			'FLAG_LIST'		=> $this->list_flag_names(),
 			'S_CAN_OVERWRITE'	=> true,
@@ -497,7 +529,7 @@ class admin_controller
 				'action'	=> 'delete'))
 			);
 			// Use a redirect to take the user back to the previous page
-			// if the user chose not delete the flag from the confirmation page.
+			// if the user chose to not delete the flag from the confirmation page.
 			redirect("{$this->u_action}");
 		}
 	}
@@ -526,10 +558,10 @@ class admin_controller
 
 		if (!$this->can_upload_flag())
 		{
-			if (empty($flag_image))
-			{
-				$errors[] = $this->user->lang['FLAG_ERROR_NO_FLAG_IMG'];
-			}
+		if (empty($flag_image))
+		{
+			$errors[] = $this->user->lang['FLAG_ERROR_NO_FLAG_IMG'];
+		}
 		}
 
 		if ($form_key == 'add_flag')

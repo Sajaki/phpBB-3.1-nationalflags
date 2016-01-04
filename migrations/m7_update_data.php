@@ -28,4 +28,15 @@ class m7_update_data extends \phpbb\db\migration\migration
 			array('config.remove', array('allow_flags')),
 		);
 	}
+
+	public function update_schema()
+	{
+		return array(
+			'add_columns'	=> array(
+				$this->table_prefix . 'flags'        => array(
+					'flag_default'	=> array('BOOL', 0),
+				),
+			),
+		);
+	}
 }

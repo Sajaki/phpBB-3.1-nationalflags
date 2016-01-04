@@ -43,6 +43,8 @@ $lang = array_merge($lang, array(
 	'ACP_FLAG_USERS'					=> 'Number of Users',
 
 	//Add/Edit Flags
+	'FLAG_DEFAULT'						=> 'Default Flag',
+	'FLAG_DEFAULT_EXPLAIN'				=> 'Setting this to yes will show the flag first in the user profile selection if a user hasn’t selected a flag yet.',
 	'FLAG_EDIT'							=> 'Edit flag',
 	'FLAG_NAME'							=> 'Flag Name',
 	'FLAG_NAME_EXPLAIN'					=> 'The name of the flag. The flag title is displayed as it is here.',

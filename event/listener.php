@@ -210,6 +210,9 @@ class listener implements EventSubscriberInterface
 			'user_flag'	=> $this->request->variable('user_flag', (int) $this->user->data['user_flag']),
 		));
 
+		$this->template->assign_vars(array(
+			'FLAG_DEFAULT' => (empty($event['data']['user_flag'])) ? true : false,
+		));
 		$this->display_flag_options($event);
 	}
 
@@ -222,10 +225,6 @@ class listener implements EventSubscriberInterface
 	 */
 	public function user_flag_profile_validate($event)
 	{
-		if (empty($this->config['flags_required']))
-		{
-			return;
-		}
 
 		if ($event['submit'] && empty($event['data']['user_flag']) && $this->config['flags_required'])
 		{
@@ -482,6 +481,17 @@ class listener implements EventSubscriberInterface
 		$flags = $this->functions->get_flag_cache();
 		$flag_name = $flag_image = '';
 		$flag_id = 0;
+
+		foreach ($flags as $key => $value)
+		{
+			if ($value['flag_default'])
+			{
+				$flag_name = $value['flag_name'];
+				$flag_image = $value['flag_image'];
+				$flag_id = $value['flag_id'];
+			}
+		}
+
 		if ($event['data']['user_flag'])
 		{
 			$flag_name = $flags[$event['data']['user_flag']]['flag_name'];

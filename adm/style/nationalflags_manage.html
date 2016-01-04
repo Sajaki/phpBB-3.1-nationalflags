@@ -40,6 +40,11 @@
 			<dt><label for="flag_image">{L_FLAG_IMG}{L_COLON}</label><br><span>{L_FLAG_IMG_EXPLAIN}</span></dt>
 			<dd><input name="flag_image" type="text" id="flag_image" value="{FLAG_IMAGE}" maxlength="255" /></dd>
 		</dl><!-- ENDIF -->
+		<dl>
+			<dt><label for="flag_default">{L_FLAG_DEFAULT}{L_COLON}</label><br><span>{L_FLAG_DEFAULT_EXPLAIN}</span></dt>
+			<dd><label><input type="radio" class="radio" name="flag_default" value="1" <!-- IF FLAG_DEFAULT -->id="flag_default" checked="checked"<!-- ENDIF --> /> {L_YES}</label>
+			<label><input type="radio" class="radio" name="flag_default" value="0" <!-- IF not FLAG_DEFAULT -->id="flag_default" checked="checked"<!-- ENDIF --> /> {L_NO}</label></dd>
+		</dl>
 
 		<p class="submit-buttons">
 			<input class="button1" type="submit" id="submit" name="submit" value="{L_SUBMIT}" />
@@ -75,6 +80,7 @@
 		<thead>
 			<tr>
 				<th>{L_FLAG_NAME}</th>
+				<th>{L_FLAG_DEFAULT}</th>
 				<th>{L_ACP_FLAG_USERS}</th>
 				<th style="text-align: center;">{L_FLAG_IMG}</th>
 				<th style="text-align: center;">{L_OPTIONS}</th>
@@ -84,6 +90,7 @@
 		<!-- BEGIN flags -->
 			<!-- IF flags.S_ROW_COUNT is even --><tr class="row1"><!-- ELSE --><tr class="row2"><!-- ENDIF -->
 				<td>{flags.FLAG_NAME}</td>
+				<td><!-- IF flags.FLAG_DEFAULT -->{L_YES}<!-- ELSE -->{L_NO}<!-- ENDIF --></td>
 				<td>{flags.USER_COUNT}</td>
 				<td style="text-align: center;"><a href="{flags.U_FLAG}"><img src="{flags.FLAG_IMG}" alt="{flags.FLAG_NAME}" title="{flags.FLAG_NAME}" /></a></td>
 				<td style="text-align: center; white-space: nowrap;">

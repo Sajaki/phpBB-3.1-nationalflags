@@ -113,7 +113,7 @@ class nationalflags
 	{
 		if (($this->cache->get('_user_flags')) === false)
 		{
-			$sql = 'SELECT flag_id, flag_name, flag_image
+			$sql = 'SELECT *
 				FROM ' . $this->flags_table . '
 			ORDER BY flag_id';
 			$result = $this->db->sql_query($sql);
@@ -125,6 +125,7 @@ class nationalflags
 					'flag_id'		=> $row['flag_id'],
 					'flag_name'		=> $row['flag_name'],
 					'flag_image'	=> $row['flag_image'],
+					'flag_default'	=> $row['flag_default'],
 				);
 			}
 			$this->db->sql_freeresult($result);
@@ -143,7 +144,7 @@ class nationalflags
 
 	public function list_flags($flag_id)
 	{
-		$sql = 'SELECT flag_id, flag_name, flag_image
+		$sql = 'SELECT *
 			FROM ' . $this->flags_table . '
 		ORDER BY flag_name';
 		$result = $this->db->sql_query($sql);
@@ -151,7 +152,7 @@ class nationalflags
 		$flag_options = '<option value="0">' . $this->user->lang['FLAG_EXPLAIN'] . '</option>';
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$selected = ($row['flag_id'] == $flag_id) ? ' selected="selected"' : '';
+			$selected = ($row['flag_id'] == $flag_id) ? ' selected="selected"' : ($row['flag_default'] ? ' selected="selected"' : '');
 			$flag_options .= '<option value="' . $row['flag_id'] . '" ' . $selected . '>' . $row['flag_name'] . '</option>';
 		}
 		$this->db->sql_freeresult($result);
